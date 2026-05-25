@@ -37,7 +37,7 @@ services:
     networks:
     - network
     volumes:
-      - ./bonfire-backend/logs:/app/log
+      - ./backend/logs:/app/log
 
   bonfire-db:
     container_name: bonfire-db
@@ -46,7 +46,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQLB_USER}
+      - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     volumes:
       - ./db:/var/lib/mysql      
@@ -70,7 +70,7 @@ services:
     networks:
       - network
 
-  keycloak_db:
+  keycloak-db:
     container_name: keycloak_db
     image: postgres:latest
     restart: always
@@ -87,3 +87,6 @@ services:
 networks:
   network:
     driver: bridge
+
+volumes:
+  postgres_data:
