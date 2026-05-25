@@ -1,6 +1,6 @@
 [submodule "bonfire-backend"]
-	path = bonfire-backend
+	path = backend
 	url = https://github.com/Lucas-Ribeiro-Lima/Bonfire-Backend.git
 [submodule "bonfire-frontend"]
-	path = bonfire-frontend
+	path = frontend
 	url = https://github.com/Lucas-Ribeiro-Lima/Bonfire-Frontend.git
