@@ -12,14 +12,17 @@ services:
     - '3000:3000'
     networks:
     - network
+    depends_on:
+      - keycloak
+      - bonfire-worker
     environment:
-    - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-    - NEXT_PUBLIC_API_PORT=${NEXT_PUBLIC_API_PORT}
+    - NEXT_PUBLIC_API_URL=${PUBLIC_API_URL}
+    - NEXT_PUBLIC_API_PORT=${PUBLIC_API_PORT}
     - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
     - NEXTAUTH_URL=${NEXTAUTH_URL}
     - BONFIRE_ID=${BONFIRE_ID}
     - BONFIRE_CLIENT_SECRET=${BONFIRE_CLIENT_SECRET}
-    - KEYCLOAK_ISSUER=${KEYCLOAK_ISSUER}
+    - KEYCLOAK_ISSUER=${KC_ISSUER}
     restart: unless-stopped
 
   bonfire-admin:
@@ -34,14 +37,17 @@ services:
     - '3001:3000'
     networks:
     - network
+    depends_on:
+      - keycloak
+      - bonfire-worker
     environment:
-    - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-    - NEXT_PUBLIC_API_PORT=${NEXT_PUBLIC_API_PORT}
+    - NEXT_PUBLIC_API_URL=${PUBLIC_API_URL}
+    - NEXT_PUBLIC_API_PORT=${PUBLIC_API_PORT}
     - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
     - NEXTAUTH_URL=${NEXTAUTH_URL}
     - BONFIRE_ID=${BONFIRE_ID}
     - BONFIRE_CLIENT_SECRET=${BONFIRE_CLIENT_SECRET}
-    - KEYCLOAK_ISSUER=${KEYCLOAK_ISSUER}
+    - KEYCLOAK_ISSUER=${KC_ISSUER}
     restart: unless-stopped
 
   bonfire-worker:
@@ -51,14 +57,17 @@ services:
       context: ./backend/
     restart: always
     ports:
-    - '5000:5000'
+    - '${PUBLIC_API_PORT}:5000'
     environment:
-    - DB_NAME=${BONFIRE_DB_NAME}
-    - DB_USER=${BONFIRE_DB_USER}
-    - DB_PASSWORD=${BONFIRE_DB_PASSWORD}
-    - KEYCLOAK_CLIENT_ID=${BONFIRE_KC_CLIENT_ID}
-    - KEYCLOAK_CLIENT_SECRET=${BONFIRE_KC_CLIENT_SECRET}
-    - KEYCLOAK_REALM_NAME=${BONFIRE_KC_REALM_NAME}
+    - DB_NAME=${DB_NAME}
+    - DB_USER=${DB_USER}
+    - DB_PASSWORD=${DB_PASSWORD}
+    - KEYCLOAK_CLIENT_ID=${KC_CLIENT_ID}
+    - KEYCLOAK_CLIENT_SECRET=${KC_CLIENT_SECRET}
+    - KEYCLOAK_REALM_NAME=${KC_REALM_NAME}
+    depends_on:
+      - bonfire-db
+      - keycloak
     networks:
     - network
     volumes:
@@ -69,10 +78,10 @@ services:
     image: mariadb
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
     volumes:
       - ./db:/var/lib/mysql      
     networks:
@@ -83,26 +92,28 @@ services:
     image: quay.io/keycloak/keycloak:23.0.6
     command: start-dev
     restart: unless-stopped
+    depends_on:
+      - keycloak-db
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
       - KC_DB_URL=jdbc:postgresql://keycloak_db:5432/keycloak
       - KC_DB=postgres
-      - KC_DB_USERNAME=${KEYCLOAK_DB_USER}
-      - KC_DB_PASSWORD=${KEYCLOAK_DB_PASSWORD}
+      - KC_DB_USERNAME=${KC_DB_USER}
+      - KC_DB_PASSWORD=${KC_DB_PASSWORD}
     ports:
       - 5050:8080
     networks:
       - network
 
   keycloak-db:
-    container_name: keycloak_db
+    container_name: keycloak-db
     image: postgres:latest
     restart: always
     environment:
       POSTGRES_DB: keycloak
-      POSTGRES_USER: ${KEYCLOAK_DB_USER}
-      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      POSTGRES_USER: ${KC_DB_USER}
+      POSTGRES_PASSWORD: ${KC_DB_PASSWORD}
       POSTGRES_PORT: 5432
     volumes:
       - postgres_data:/var/lib/postgresql
