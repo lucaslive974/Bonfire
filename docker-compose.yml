@@ -1,4 +1,3 @@
-version: '3.9'
 services:
   bonfire-app:
     container_name: bonfire-app
@@ -20,8 +19,8 @@ services:
       - NEXT_PUBLIC_API_PORT=${PUBLIC_API_PORT}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - NEXTAUTH_URL=${NEXTAUTH_URL}
-      - BONFIRE_ID=${BONFIRE_ID}
-      - BONFIRE_CLIENT_SECRET=${BONFIRE_CLIENT_SECRET}
+      - BONFIRE_ID=${KC_CLIENT_ID}
+      - BONFIRE_CLIENT_SECRET=${KC_CLIENT_SECRET}
       - KEYCLOAK_ISSUER=${KC_ISSUER}/realms/${KC_REALM}
     restart: unless-stopped
 
@@ -45,8 +44,8 @@ services:
       - NEXT_PUBLIC_API_PORT=${PUBLIC_API_PORT}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - NEXTAUTH_URL=${NEXTAUTH_URL}
-      - BONFIRE_ID=${BONFIRE_ID}
-      - BONFIRE_CLIENT_SECRET=${BONFIRE_CLIENT_SECRET}
+      - BONFIRE_ID=${KC_CLIENT_ID}
+      - BONFIRE_CLIENT_SECRET=${KC_CLIENT_SECRET}
       - KEYCLOAK_ISSUER=${KC_ISSUER}/realms/${KC_REALM}
     restart: unless-stopped
 
